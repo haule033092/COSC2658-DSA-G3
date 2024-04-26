@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
+import Math;
 class Map2D {
     private static final int MAP_WIDTH = 10000000;
     private static final int MAP_HEIGHT = 10000000;
@@ -114,5 +114,15 @@ class Map2D {
             current = current.next;
         }
         return count;
+    }
+
+    public double calculateDistance (int x1, int y1, int x2, int y2){
+//        Find the coordinate using the Euclidean method
+        int deltaX = x2 - x1;
+        int deltaY = y2 - y2;
+        double distanceSquared = Math.pow(deltaX, 2) + Math.pow(deltaY, 2);
+        double distance = Math.sqrt(distanceSquared);
+
+        return distance;
     }
 }
