@@ -1,7 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import Math;
 class Map2D {
     private static final int MAP_WIDTH = 10000000;
     private static final int MAP_HEIGHT = 10000000;
