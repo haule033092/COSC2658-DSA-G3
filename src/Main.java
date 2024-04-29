@@ -70,6 +70,11 @@ public class Main {
         duration = (endTime - startTime) / 1000000; // Duration in milliseconds
         System.out.println("Search for Restaurants after edit took: " + duration + " milliseconds");
         map.printPlaces(restaurantSearchResultAfterEdit);
+
+
+        System.out.println("Search places within the range: ");
+        List<Place> searchPlacesWithinRange = map.searchPlacesWithinRange("Restaurant",50, 2200, 2200, 500, 800);
+        map.printPlaces(searchPlacesWithinRange);
     }
 }
 

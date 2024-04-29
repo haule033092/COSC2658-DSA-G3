@@ -94,9 +94,33 @@ class Map2D {
         return result;
     }
 
+
+    public List<Place> searchPlacesWithinRange(String service, int maxResults, int centerX, int centerY, int boundaryWidth, int boundaryHeight) {
+        List<Place> result = new ArrayList<>();
+        int count = 0;
+
+        Node current = head;
+        while (current != null) {
+            if (current.data.services.contains(service) &&
+                    isInRectangle(current.data.x, current.data.y, centerX, centerY, boundaryWidth, boundaryHeight)) {
+                int distance = (int) calculateDistance(centerX, centerY, current.data.x, current.data.y); // Correct distance calculation
+                Place placeWithDistance = new Place(current.data.x, current.data.y, current.data.services, distance); // Use constructor with distance
+                result.add(placeWithDistance);
+                count++;
+                if (count >= maxResults) {
+                    break;
+                }
+            }
+            current = current.next;
+        }
+        return result;
+    }
+
+
+
     public void printPlaces(List<Place> places) {
         for (Place place : places) {
-            System.out.println("Found place at: (" + place.x + ", " + place.y + "), Services: " + place.services);
+            System.out.println("Found place at: (" + place.x + ", " + place.y + "), Services: " + place.services + " Distance to target: "+ place.distance);
         }
     }
 
@@ -115,10 +139,20 @@ class Map2D {
         return count;
     }
 
+    private boolean isInRectangle(int placeX, int placeY, int centerX, int centerY, int width, int height) {
+        int minX = centerX - width / 2;
+        int maxX = centerX + width / 2;
+        int minY = centerY - height / 2;
+        int maxY = centerY + height / 2;
+        return (placeX >= minX && placeX <= maxX) && (placeY >= minY && placeY <= maxY);
+    }
+
+
+
     public double calculateDistance (int x1, int y1, int x2, int y2){
 //        Find the coordinate using the Euclidean method
         int deltaX = x2 - x1;
-        int deltaY = y2 - y2;
+        int deltaY = y2 - y1;
         double distanceSquared = Math.pow(deltaX, 2) + Math.pow(deltaY, 2);
         double distance = Math.sqrt(distanceSquared);
 
