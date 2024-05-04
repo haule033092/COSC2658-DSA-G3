@@ -1,6 +1,6 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.io.*;
+import java.util.*;
+
 class Map2D {
     private static final int MAP_WIDTH = 10000000;
     private static final int MAP_HEIGHT = 10000000;
@@ -157,5 +157,54 @@ class Map2D {
         double distance = Math.sqrt(distanceSquared);
 
         return distance;
+    }
+
+
+    public void addRandomPlacesToFile(String filename) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(filename))) {
+            Random random = new Random();
+            int maxServiceTypes = 10;
+            int mapWidth = 10000000;
+            int mapHeight = 10000000;
+
+            for (int i = 0; i < 100000000; i++) {
+                int x = random.nextInt(mapWidth);
+                int y = random.nextInt(mapHeight);
+
+                int numServices = random.nextInt(maxServiceTypes) + 1; // Ensure at least one service type
+                Set<String> services = generateRandomServices(numServices);
+
+                writer.println(x + "," + y + "," + String.join(",", services));
+                System.out.println(i+". Added place at: (" + x + ", " + y + "), Services: " + services);
+            }
+        } catch (IOException e) {
+            System.err.println("Error writing to file: " + e.getMessage());
+        }
+    }
+
+    private static Set<String> generateRandomServices(int numServices) {
+        Random random = new Random();
+        String[] serviceTypes = {"ATM", "Bank", "Restaurant", "Hospital", "Cafe", "Hotel", "Gas Station", "Park", "Gym", "Pharmacy"};
+        Set<String> services = new HashSet<>();
+        for (int i = 0; i < numServices; i++) {
+            services.add(serviceTypes[random.nextInt(serviceTypes.length)]);
+        }
+        return services;
+    }
+
+
+    public void readPlacesFromFile(String filename) {
+        try (Scanner scanner = new Scanner(new File(filename))) {
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                String[] parts = line.split(",");
+                int x = Integer.parseInt(parts[0]);
+                int y = Integer.parseInt(parts[1]);
+                Set<String> services = new HashSet<>(Arrays.asList(parts[2].split(",")));
+                addPlace(x, y, services);
+            }
+        } catch (FileNotFoundException e) {
+            System.err.println("File not found: " + e.getMessage());
+        }
     }
 }
