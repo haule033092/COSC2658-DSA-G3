@@ -1,22 +1,29 @@
 import java.io.*;
+import java.lang.reflect.Constructor;
 import java.util.*;
 
 class Map2D {
+    // Define constants for map dimensions and limits
     private static final int MAP_WIDTH = 10000000;
     private static final int MAP_HEIGHT = 10000000;
     private static final int MAX_SERVICE_TYPES = 10;
     private static final int MAX_PLACES = 100000000;
     private Node head;
 
+//    Constructor
     public Map2D() {
         this.head = null;
     }
 
+
+//    Add place
     public void addPlace(int x, int y, Set<String> services) {
         Place place = new Place(x, y, services);
         addPlace(place);
     }
 
+
+//    Add place with object
     public void addPlace(Place place) {
         if (isValidPlace(place)) {
             if (place.services.size() <= MAX_SERVICE_TYPES && countPlaces() < MAX_PLACES) {
@@ -38,6 +45,8 @@ class Map2D {
         }
     }
 
+
+//    Edit place service
     public void editPlaceServices(int x, int y, Set<String> newServices) {
         Node current = head;
         while (current != null) {
@@ -54,6 +63,7 @@ class Map2D {
         System.out.println("Place not found");
     }
 
+//    Remove place
     public void removePlace(int x, int y) {
         if (head == null) {
             System.out.println("List is empty");
@@ -76,7 +86,7 @@ class Map2D {
         System.out.println("Place not found");
     }
 
-
+//    Search for existing places
     public List<Place> searchPlaces(String service, int maxResults) {
         List<Place> result = new ArrayList<>();
         int count = 0; // Counter for the number of results
@@ -95,6 +105,7 @@ class Map2D {
     }
 
 
+//    Search for existing places within boundary
     public List<Place> searchPlacesWithinRange(String service, int maxResults, int centerX, int centerY, int boundaryWidth, int boundaryHeight) {
         List<Place> result = new ArrayList<>();
         int count = 0;
@@ -117,18 +128,20 @@ class Map2D {
     }
 
 
-
+//    Print places in terminal
     public void printPlaces(List<Place> places) {
         for (Place place : places) {
             System.out.println("Found place at: (" + place.x + ", " + place.y + "), Services: " + place.services + " Distance to target: "+ place.distance);
         }
     }
 
+//    Check if the place is in the map
     private boolean isValidPlace(Place place) {
         return place.x >= 0 && place.x <= MAP_WIDTH &&
                 place.y >= 0 && place.y <= MAP_HEIGHT;
     }
 
+//    Count the nubmer of places
     private int countPlaces() {
         int count = 0;
         Node current = head;
@@ -139,6 +152,7 @@ class Map2D {
         return count;
     }
 
+//    Check if location is in the boundary
     private boolean isInRectangle(int placeX, int placeY, int centerX, int centerY, int width, int height) {
         int minX = centerX - width / 2;
         int maxX = centerX + width / 2;
@@ -148,7 +162,7 @@ class Map2D {
     }
 
 
-
+//    Euclidean calculation for distance
     public double calculateDistance (int x1, int y1, int x2, int y2){
 //        Find the coordinate using the Euclidean method
         int deltaX = x2 - x1;
@@ -246,6 +260,7 @@ class Map2D {
         }
     }
 
+//    Separated from the readPlacesUsingBufferedReading, read the each line and create place
     private Place parsePlaceFromLine(String line) {
         String[] parts = line.split(",", 3);
         if (parts.length != 3) {
@@ -263,15 +278,4 @@ class Map2D {
             return null;
         }
     }
-
-
-
-
-
-
-
-
-
-
-
 }
