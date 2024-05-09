@@ -7,12 +7,12 @@ public class KdTree {
 
     public static class Node {
         Point point;
-        String service;
+        Set<String> services;
         Node left, right;
 
-        public Node(Point point, String service) {
+        public Node(Point point, Set<String> service) {
             this.point = point;
-            this.service = service;
+            this.services = new HashSet<>(services);
             left = right = null;
         }
     }
@@ -63,7 +63,7 @@ public class KdTree {
         int medianIndex = points.size() / 2;
         Point medianPoint = QuickSelect.select(points, medianIndex, axis);
 
-        Node node = new Node(medianPoint, "");
+        Node node = new Node(medianPoint, new HashSet<>());
 
         List<Point> leftPoints = new ArrayList<>(points.subList(0, medianIndex));
         List<Point> rightPoints = new ArrayList<>(points.subList(medianIndex + 1, points.size()));
@@ -74,35 +74,29 @@ public class KdTree {
         return node;
     }
 
-    public void insert(Point point, String service) {
-        root = insertRecursive(root, point, service, 0);
+    public void insert(Point point, Set<String> services) {
+        root = insertRecursive(root, point, services, 0);
     }
 
-    private Node insertRecursive(Node node, Point point, String service, int depth) {
+    private Node insertRecursive(Node node, Point point, Set<String> services, int depth) {
         if (node == null)
-            return new Node(point, service);
+            return new Node(point, services);
 
         int axis = depth % 2; // Alternating between x and y axis
 
-        if (axis == 0) {
-            if (point.getX() < node.point.getX())
-                node.left = insertRecursive(node.left, point, service, depth + 1);
-            else
-                node.right = insertRecursive(node.right, point, service, depth + 1);
+        if ((axis == 0 && point.getX() < node.point.getX()) || (axis == 1 && point.getY() < node.point.getY())) {
+            node.left = insertRecursive(node.left, point, services, depth + 1);
         } else {
-            if (point.getY() < node.point.getY())
-                node.left = insertRecursive(node.left, point, service, depth + 1);
-            else
-                node.right = insertRecursive(node.right, point, service, depth + 1);
+            node.right = insertRecursive(node.right, point, services, depth + 1);
         }
 
         return node;
     }
 
     // SEARCH
-    public String searchNearest(Point target) {
+    public Set<String> searchNearest(Point target) {
         Node nearestNode = searchNearestRecursive(root, target, 0, root);
-        return nearestNode != null ? nearestNode.service : null;
+        return nearestNode != null ? nearestNode.services : Collections.emptySet();
     }
 
     private Node searchNearestRecursive(Node node, Point target, int depth, Node best) {
@@ -147,47 +141,50 @@ public class KdTree {
     }
 
     // REMOVE
-    public void remove(Point point) {
-        root = removeRecursive(root, point, 0);
+    public void removeService(Point point, String service) {
+        removeServiceRecursive(root, point, service, 0);
     }
 
-    private Node removeRecursive(Node node, Point point, int depth) {
+    private void removeServiceRecursive(Node node, Point point, String service, int depth) {
         if (node == null)
-            return null;
+            return;
 
-        int axis = depth % 2; // 0 for x-axis, 1 for y-axis
+        int axis = depth % 2;
 
         if (point.equals(node.point)) {
-            node.service = null; // Invalidate the service
+            node.services.remove(service); // Remove specific service
+            if (node.services.isEmpty()) {
+                // Handle node removal if no services are left
+            }
         } else {
             if ((axis == 0 && point.getX() < node.point.getX()) || (axis == 1 && point.getY() < node.point.getY())) {
-                node.left = removeRecursive(node.left, point, depth + 1);
+                removeServiceRecursive(node.left, point, service, depth + 1);
             } else {
-                node.right = removeRecursive(node.right, point, depth + 1);
+                removeServiceRecursive(node.right, point, service, depth + 1);
             }
         }
-
-        return node;
     }
 
     // UPDATE
     public void update(Point point, String newService) {
-        updateRecursive(root, point, newService, 0);
+        Set<String> newServices = new HashSet<>();
+        newServices.add(newService);
+        updateRecursive(root, point, newServices, 0);
     }
 
-    private void updateRecursive(Node node, Point point, String newService, int depth) {
+    private void updateRecursive(Node node, Point point, Set<String> newServices, int depth) {
         if (node == null)
             return;
 
-        int axis = depth % 2; // 0 for x-axis, 1 for y-axis
+        int axis = depth % 2;
 
         if (point.equals(node.point)) {
-            node.service = newService; // Update the service if the points match
+            node.services.addAll(newServices); // Merge new services with existing ones
         } else {
             if ((axis == 0 && point.getX() < node.point.getX()) || (axis == 1 && point.getY() < node.point.getY())) {
-                updateRecursive(node.left, point, newService, depth + 1);
+                updateRecursive(node.left, point, newServices, depth + 1);
             } else {
-                updateRecursive(node.right, point, newService, depth + 1);
+                updateRecursive(node.right, point, newServices, depth + 1);
             }
         }
     }

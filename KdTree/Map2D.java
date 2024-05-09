@@ -20,10 +20,10 @@ public class Map2D {
     }
 
     public void setPoint(int x, int y, String service) {
-        KdTree.insert(new KdTree.Point(x, y), service);
+        KdTree.insert(new KdTree.Point(x, y), Set.of(service));
     }
 
-    public String getPoint(int x, int y) {
+    public Set<String> getPoint(int x, int y) {
         return KdTree.searchNearest(new KdTree.Point(x, y));
     }
 
@@ -42,13 +42,13 @@ public class Map2D {
 
     /* ADD A PLACE */
     public static void addPlace(int x, int y, String service) {
-        KdTree.insert(new KdTree.Point(x, y), service);
+        KdTree.insert(new KdTree.Point(x, y), Set.of(service));
         System.out.println("Service added at (" + x + ", " + y + "): " + service);
     }
 
     /* SEARCH A PLACE */
     public static void searchPlace(int x, int y) {
-        String service = KdTree.searchNearest(new KdTree.Point(x, y));
+        Set<String> service = KdTree.searchNearest(new KdTree.Point(x, y));
         if (service != null) {
             System.out.println("Service at (" + x + ", " + y + "): " + service);
         } else {
@@ -58,7 +58,7 @@ public class Map2D {
 
     /* REMOVE A PLACE */
     public static void removePlace(int x, int y) {
-        KdTree.remove(new KdTree.Point(x, y));
+        KdTree.delete(new KdTree.Point(x, y));
         System.out.println("Service removed at (" + x + ", " + y + ")");
 
     }
@@ -78,7 +78,5 @@ public class Map2D {
     public static void main(String[] args) {
         Map2D map = new Map2D();
 
-        map.generateMapBySize(10000);
-        map.getMap();
     }
 }
