@@ -160,28 +160,62 @@ class Map2D {
     }
 
 
+//    Generate places
+    public void generateRandomPlaces(int numPlaces) {
+        Random random = new Random();
+        Set<String> existingCoordinates = new HashSet<>();
+
+        int numPlacesAdded = 0;
+        while (numPlacesAdded < numPlaces) {
+            int x = random.nextInt(MAP_WIDTH);
+            int y = random.nextInt(MAP_HEIGHT);
+
+            // Check if the coordinates already exist
+            String coordinate = x + "," + y;
+            if (!existingCoordinates.contains(coordinate)) {
+                int numServices = random.nextInt(MAX_SERVICE_TYPES) + 1; // Ensure at least one service type
+                Set<String> services = generateRandomServices(numServices);
+
+                // Instead of writing to file, you can add the place directly to your data structure
+                addPlace(x, y, services);
+
+                existingCoordinates.add(coordinate);
+                numPlacesAdded++;
+                System.out.println(numPlacesAdded + ". Added place at: (" + x + ", " + y + "), Services: " + services);
+            }
+        }
+    }
+
+
+//    Generate places and save to file
     public void addRandomPlacesToFile(String filename) {
         try (PrintWriter writer = new PrintWriter(new FileWriter(filename))) {
             Random random = new Random();
-            int maxServiceTypes = 10;
-            int mapWidth = 10000000;
-            int mapHeight = 10000000;
+            Set<String> existingCoordinates = new HashSet<>();
 
-            for (int i = 0; i < 100000000; i++) {
-                int x = random.nextInt(mapWidth);
-                int y = random.nextInt(mapHeight);
+            int numPlacesAdded = 0;
+            while (numPlacesAdded < 50000) {
+                int x = random.nextInt(MAP_WIDTH);
+                int y = random.nextInt(MAP_HEIGHT);
 
-                int numServices = random.nextInt(maxServiceTypes) + 1; // Ensure at least one service type
-                Set<String> services = generateRandomServices(numServices);
+                // Check if the coordinates already exist
+                String coordinate = x + "," + y;
+                if (!existingCoordinates.contains(coordinate)) {
+                    int numServices = random.nextInt(MAX_SERVICE_TYPES) + 1; // Ensure at least one service type
+                    Set<String> services = generateRandomServices(numServices);
 
-                writer.println(x + "," + y + "," + String.join(",", services));
-                System.out.println(i+". Added place at: (" + x + ", " + y + "), Services: " + services);
+                    writer.println(x + "," + y + "," + String.join(",", services));
+                    existingCoordinates.add(coordinate);
+                    numPlacesAdded++;
+                System.out.println(numPlacesAdded+ ". Added place at: (" + x + ", " + y + "), Services: " + services);
+                }
             }
         } catch (IOException e) {
             System.err.println("Error writing to file: " + e.getMessage());
         }
     }
 
+//    Add ramdom services
     private static Set<String> generateRandomServices(int numServices) {
         Random random = new Random();
         String[] serviceTypes = {"ATM", "Bank", "Restaurant", "Hospital", "Cafe", "Hotel", "Gas Station", "Park", "Gym", "Pharmacy"};
@@ -191,20 +225,53 @@ class Map2D {
         }
         return services;
     }
-
-
-    public void readPlacesFromFile(String filename) {
-        try (Scanner scanner = new Scanner(new File(filename))) {
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                String[] parts = line.split(",");
-                int x = Integer.parseInt(parts[0]);
-                int y = Integer.parseInt(parts[1]);
-                Set<String> services = new HashSet<>(Arrays.asList(parts[2].split(",")));
-                addPlace(x, y, services);
+//    Read the file and add the places
+    public void readPlacesUsingBufferedReading(String filename) {
+        int numPlacesAdded = 0;
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                Place place = parsePlaceFromLine(line);
+                if (place != null) {
+                    addPlace(place);
+                    System.out.println(numPlacesAdded + ". Added place at (" + place.x + ", " + place.y + ")");
+                    numPlacesAdded++;
+                }
             }
+            System.out.println("Total places added: " + numPlacesAdded);
         } catch (FileNotFoundException e) {
             System.err.println("File not found: " + e.getMessage());
+        } catch (IOException e) {
+            System.err.println("Error reading file: " + e.getMessage());
         }
     }
+
+    private Place parsePlaceFromLine(String line) {
+        String[] parts = line.split(",", 3);
+        if (parts.length != 3) {
+            System.err.println("Invalid line format: " + line);
+            return null;
+        }
+
+        try {
+            int x = Integer.parseInt(parts[0]);
+            int y = Integer.parseInt(parts[1]);
+            Set<String> services = new HashSet<>(Arrays.asList(parts[2].split(",")));
+            return new Place(x, y, services);
+        } catch (NumberFormatException e) {
+            System.err.println("Error parsing coordinates: " + e.getMessage());
+            return null;
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
 }
